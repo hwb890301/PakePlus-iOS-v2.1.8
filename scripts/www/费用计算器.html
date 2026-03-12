@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>商品房费用计算器 · 混合单位版</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f3f7fc;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px 16px 30px;
+        }
+        .container {
+            max-width: 520px;
+            width: 100%;
+            background: white;
+            border-radius: 36px;
+            box-shadow: 0 20px 40px rgba(0, 20, 40, 0.12);
+            padding: 28px 22px 32px;
+        }
+        h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #0a2a3b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .sub {
+            color: #4d6a86;
+            font-size: 14px;
+            border-left: 3px solid #8fb4d0;
+            padding-left: 14px;
+            margin-bottom: 26px;
+            line-height: 1.5;
+        }
+        .input-group {
+            margin-bottom: 18px;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 15px;
+            color: #1f405b;
+            margin-bottom: 6px;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 16px;
+            border: 1.5px solid #dae2ec;
+            border-radius: 30px;
+            background: #fafdff;
+            transition: 0.15s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-color: #1e4f6b;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(30, 79, 107, 0.1);
+        }
+        .double {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .double .input-group {
+            flex: 1 1 180px;
+        }
+        /* 贷款方式按钮组 */
+        .loan-type-group {
+            display: flex;
+            gap: 12px;
+            margin: 10px 0 20px;
+        }
+        .loan-type-btn {
+            flex: 1;
+            padding: 14px 0;
+            border: 2px solid #dae2ec;
+            border-radius: 40px;
+            background: white;
+            font-size: 16px;
+            font-weight: 500;
+            color: #1f405b;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .loan-type-btn.active {
+            background: #1e4f6b;
+            border-color: #1e4f6b;
+            color: white;
+            box-shadow: 0 6px 12px rgba(30, 79, 107, 0.2);
+        }
+        .loan-type-btn:active {
+            transform: scale(0.97);
+        }
+        .loan-dynamic {
+            background: #f0f5fb;
+            border-radius: 28px;
+            padding: 18px 16px;
+            margin: 16px 0 20px;
+        }
+        .loan-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .loan-row .input-group {
+            flex: 1 1 140px;
+            margin-bottom: 0;
+        }
+        .loan-tip {
+            font-size: 13px;
+            color: #2f6b96;
+            background: #daeaf7;
+            padding: 6px 12px;
+            border-radius: 30px;
+        }
+        .btn {
+            background: #1e4f6b;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            width: 100%;
+            margin: 20px 0 28px;
+            box-shadow: 0 10px 20px rgba(30, 79, 107, 0.3);
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .btn:active {
+            background: #153e54;
+            transform: scale(0.98);
+        }
+        .result-panel {
+            background: #eef3f9;
+            border-radius: 32px;
+            padding: 24px 18px;
+        }
+        .section-title {
+            font-weight: 600;
+            font-size: 18px;
+            color: #1f405b;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #d0e0ef;
+        }
+        .fee-row:last-child {
+            border-bottom: none;
+        }
+        .fee-row .label {
+            color: #3b5f7c;
+        }
+        .fee-row .value {
+            font-weight: 600;
+            color: #102d40;
+        }
+        .total-highlight {
+            background: #1e3b50;
+            border-radius: 24px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            margin: 16px 0 20px;
+        }
+        .total-highlight .label {
+            font-size: 16px;
+        }
+        .total-highlight .number {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .loan-result-item {
+            background: white;
+            border-radius: 24px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+        .loan-result-item p {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .footnote {
+            font-size: 12px;
+            color: #7892ad;
+            text-align: center;
+            margin-top: 16px;
+        }
+        .gray-bg {
+            background: #f8fbfe;
+            border-radius: 18px;
+            padding: 10px 14px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #2b5b81;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 标题已修改为：商品房费用计算器 -->
+    <h1>🏠 商品房费用计算器</h1>
+    <div class="sub">总价/首付(元) 贷款(万元)，点击按钮切换贷款方式</div>
+
+    <!-- 输入区域 -->
+    <div class="double">
+        <div class="input-group">
+            <label>📐 建筑面积 (㎡)</label>
+            <input type="number" id="area" value="90" min="0" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>💰 总价 (元)</label>
+            <input type="number" id="totalPrice" value="2000000" min="0" step="1" onblur="roundInt(this)">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>👥 客户资质</label>
+        <select id="buyerType">
+            <option value="first" selected>首套房</option>
+            <option value="second">二套房</option>
+            <option value="third">二套以上</option>
+        </select>
+    </div>
+
+    <!-- 贷款方式按钮组 -->
+    <div class="loan-type-group" id="loanTypeGroup">
+        <div class="loan-type-btn active" data-value="accumulation">公积金</div>
+        <div class="loan-type-btn" data-value="commercial">按揭</div>
+        <div class="loan-type-btn" data-value="combined">组合贷款</div>
+    </div>
+
+    <div class="double">
+        <div class="input-group">
+            <label>💵 首付 (元)</label>
+            <input type="number" id="downPayment" value="1000000" min="0" step="1" onblur="roundInt(this)">
+        </div>
+        <div class="input-group">
+            <label>📊 贷款总额 (万元)</label>
+            <input type="number" id="loanTotal" value="100" min="0" step="0.01" onblur="roundToTwo(this)">
+        </div>
+    </div>
+
+    <!-- 动态贷款详情区域（根据贷款方式显示） -->
+    <div id="loanDetails" class="loan-dynamic">
+        <!-- 由JS动态填充 -->
+    </div>
+
+    <button class="btn" id="calcBtn">🔍 计算税费 & 月供</button>
+
+    <!-- 结果展示区 -->
+    <div class="result-panel">
+        <div class="section-title">📋 费用明细</div>
+        <div class="fee-row">
+            <span class="label">契税</span>
+            <span class="value" id="deedTax">0.00 元</span>
+        </div>
+        <div class="fee-row">
+            <span class="label">维修基金</span>
+            <span class="value" id="maintenanceFund">0 元</span>
+        </div>
+        <div class="fee-row">
+            <span class="label">首付（自付）</span>
+            <span class="value" id="downPayDisplay">0 元</span>
+        </div>
+        <div class="total-highlight">
+            <span class="label">💰 首付合计</span>
+            <span class="number" id="totalDownPayment">0.00 元</span>
+        </div>
+
+        <div class="section-title" style="margin-top: 20px;">🏦 贷款月供</div>
+        <div id="monthlyResult">
+            <!-- 动态生成：单一贷款或组合贷款结果 -->
+        </div>
+        <div class="footnote">* 等额本息估算，利率可手动调整，实际以银行审批为准</div>
+    </div>
+</div>
+
+<script>
+    // 全局辅助函数：输入框失去焦点时取整（元）
+    window.roundInt = function(input) {
+        let val = parseFloat(input.value);
+        if (isNaN(val)) val = 0;
+        input.value = Math.round(val);
+    };
+    // 保留两位小数（万元）
+    window.roundToTwo = function(input) {
+        let val = parseFloat(input.value);
+        if (isNaN(val)) val = 0;
+        input.value = val.toFixed(2);
+    };
+
+    (function() {
+        // 获取所有输入元素
+        const areaInp = document.getElementById('area');
+        const totalPriceInp = document.getElementById('totalPrice');
+        const buyerTypeSel = document.getElementById('buyerType');
+        const loanTypeBtns = document.querySelectorAll('.loan-type-btn');
+        const downPaymentInp = document.getElementById('downPayment');
+        const loanTotalInp = document.getElementById('loanTotal');
+        const loanDetailsDiv = document.getElementById('loanDetails');
+        const calcBtn = document.getElementById('calcBtn');
+
+        // 结果显示元素
+        const deedTaxSpan = document.getElementById('deedTax');
+        const maintenanceSpan = document.getElementById('maintenanceFund');
+        const downPayDisplaySpan = document.getElementById('downPayDisplay');
+        const totalDownSpan = document.getElementById('totalDownPayment');
+        const monthlyResultDiv = document.getElementById('monthlyResult');
+
+        // 预设利率
+        const DEFAULT_ACCUMULATION_RATE = 2.6;
+        const DEFAULT_COMMERCIAL_RATE = 3.1;
+
+        // 标志位，防止循环触发
+        let updating = false;
+
+        // 当前选中的贷款方式
+        let currentLoanType = 'accumulation';
+
+        // 为金额输入框添加失去焦点处理（已有onblur，但还需手动触发联动）
+        function syncLoanAndDown() {
+            if (updating) return;
+            updating = true;
+
+            let total = parseFloat(totalPriceInp.value) || 0;
+            let down = parseFloat(downPaymentInp.value) || 0;
+            if (down < 0) down = 0;
+            if (down > total) down = total;
+            let loanYuan = total - down;
+            let loanWan = loanYuan / 10000;
+            loanTotalInp.value = loanWan.toFixed(2);
+
+            updating = false;
+        }
+
+        // 总价变化
+        totalPriceInp.addEventListener('input', function() {
+            if (updating) return;
+            updating = true;
+            let total = parseFloat(totalPriceInp.value) || 0;
+            let down = parseFloat(downPaymentInp.value) || 0;
+            if (down > total) down = total;
+            let loanYuan = total - down;
+            let loanWan = loanYuan / 10000;
+            loanTotalInp.value = loanWan.toFixed(2);
+            updating = false;
+        });
+
+        // 首付变化
+        downPaymentInp.addEventListener('input', function() {
+            if (updating) return;
+            updating = true;
+            let total = parseFloat(totalPriceInp.value) || 0;
+            let down = parseFloat(downPaymentInp.value) || 0;
+            if (down < 0) down = 0;
+            if (down > total) down = total;
+            let loanYuan = total - down;
+            let loanWan = loanYuan / 10000;
+            loanTotalInp.value = loanWan.toFixed(2);
+            updating = false;
+        });
+
+        // 贷款总额变化（万元）
+        loanTotalInp.addEventListener('input', function() {
+            if (updating) return;
+            updating = true;
+            let total = parseFloat(totalPriceInp.value) || 0;
+            let loanWan = parseFloat(loanTotalInp.value) || 0;
+            if (loanWan < 0) loanWan = 0;
+            let loanYuan = loanWan * 10000;
+            if (loanYuan > total) {
+                loanYuan = total;
+                loanTotalInp.value = (loanYuan / 10000).toFixed(2);
+            }
+            let down = total - loanYuan;
+            downPaymentInp.value = Math.round(down);
+            updating = false;
+        });
+
+        // 贷款方式按钮点击切换
+        function setLoanType(value) {
+            currentLoanType = value;
+            loanTypeBtns.forEach(btn => {
+                if (btn.dataset.value === value) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            renderLoanDetails();
+        }
+
+        loanTypeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                setLoanType(this.dataset.value);
+            });
+        });
+
+        // 根据贷款方式重新绘制动态输入区
+        function renderLoanDetails() {
+            // 获取当前贷款总额（万元）
+            let currentLoanWan = parseFloat(loanTotalInp.value) || 0;
+            if (currentLoanWan < 0) currentLoanWan = 0;
+            currentLoanWan = parseFloat(currentLoanWan.toFixed(2));
+
+            let html = '';
+            if (currentLoanType === 'accumulation') {
+                html = `
+                    <div class="loan-row">
+                        <div class="input-group">
+                            <label>公积金金额 (万元)</label>
+                            <input type="number" id="accumAmount" value="${currentLoanWan}" min="0" step="0.01" onblur="roundToTwo(this)">
+                        </div>
+                        <div class="input-group">
+                            <label>公积金年限</label>
+                            <input type="number" id="accumYears" value="20" min="1" max="30" step="1">
+                        </div>
+                    </div>
+                    <div class="loan-row">
+                        <div class="input-group">
+                            <label>公积金利率 (%)</label>
+                            <input type="number" id="accumRate" value="${DEFAULT_ACCUMULATION_RATE}" min="0" step="0.05">
+                        </div>
+                    </div>
+                `;
+            } else if (currentLoanType === 'commercial') {
+                html = `
+                    <div class="loan-row">
+                        <div class="input-group">
+                            <label>按揭金额 (万元)</label>
+                            <input type="number" id="commAmount" value="${currentLoanWan}" min="0" step="0.01" onblur="roundToTwo(this)">
+                        </div>
+                        <div class="input-group">
+                            <label>按揭年限</label>
+                            <input type="number" id="commYears" value="20" min="1" max="30" step="1">
+                        </div>
+                    </div>
+                    <div class="loan-row">
+                        <div class="input-group">
+                            <label>按揭利率 (%)</label>
+                            <input type="number" id="commRate" value="${DEFAULT_COMMERCIAL_RATE}" min="0" step="0.05">
+                        </div>
+                    </div>
+                `;
+            } else { // 组合贷款
+                const half = (currentLoanWan / 2).toFixed(2);
+                html = `
+                    <div class="loan-row">
+                        <div class="input-group">
+                            <label>公积金金额 (万元)</label>
+                            <input type="number" id="accumAmount" value="${half}" min="0" step="0.01" onblur="roundToTwo(this)">
+                        </div>
+                        <div class="input-group">
+                            <label>公积金年限</label>
+                            <input type="number" id="accumYears" value="20" min="1" max="30" step="1">
+                        </div>
+                        <div class="input-group">
+                            <label>公积金利率 (%)</label>
+                            <input type="number" id="accumRate" value="${DEFAULT_ACCUMULATION_RATE}" min="0" step="0.05">
+                        </div>
+                    </div>
+                    <div class="loan-row">
+                        <div class="input-group">
+                            <label>按揭金额 (万元)</label>
+                            <input type="number" id="commAmount" value="${(currentLoanWan - parseFloat(half)).toFixed(2)}" min="0" step="0.01" onblur="roundToTwo(this)">
+                        </div>
+                        <div class="input-group">
+                            <label>按揭年限</label>
+                            <input type="number" id="commYears" value="20" min="1" max="30" step="1">
+                        </div>
+                        <div class="input-group">
+                            <label>按揭利率 (%)</label>
+                            <input type="number" id="commRate" value="${DEFAULT_COMMERCIAL_RATE}" min="0" step="0.05">
+                        </div>
+                    </div>
+                    <div class="loan-tip">组合贷款总额应等于 ${currentLoanWan} 万元</div>
+                `;
+            }
+            loanDetailsDiv.innerHTML = html;
+
+            // 如果是组合贷款，设置联动
+            if (currentLoanType === 'combined') {
+                setTimeout(() => {
+                    const accumInp = document.getElementById('accumAmount');
+                    const commInp = document.getElementById('commAmount');
+
+                    if (!accumInp || !commInp) return;
+
+                    // 移除旧监听，重新绑定
+                    const newAccum = accumInp.cloneNode(true);
+                    const newComm = commInp.cloneNode(true);
+                    accumInp.parentNode.replaceChild(newAccum, accumInp);
+                    commInp.parentNode.replaceChild(newComm, commInp);
+
+                    const accum = document.getElementById('accumAmount');
+                    const comm = document.getElementById('commAmount');
+
+                    // 同步函数：根据公积金更新按揭
+                    function syncFromAccum() {
+                        if (updating) return;
+                        updating = true;
+                        let accumVal = parseFloat(accum.value) || 0;
+                        if (accumVal < 0) accumVal = 0;
+                        let totalLoanWan = parseFloat(loanTotalInp.value) || 0;
+                        if (totalLoanWan < 0) totalLoanWan = 0;
+                        if (accumVal > totalLoanWan) accumVal = totalLoanWan;
+                        accum.value = accumVal.toFixed(2);
+                        comm.value = (totalLoanWan - accumVal).toFixed(2);
+                        updating = false;
+                    }
+
+                    // 同步函数：根据按揭更新公积金
+                    function syncFromComm() {
+                        if (updating) return;
+                        updating = true;
+                        let commVal = parseFloat(comm.value) || 0;
+                        if (commVal < 0) commVal = 0;
+                        let totalLoanWan = parseFloat(loanTotalInp.value) || 0;
+                        if (totalLoanWan < 0) totalLoanWan = 0;
+                        if (commVal > totalLoanWan) commVal = totalLoanWan;
+                        comm.value = commVal.toFixed(2);
+                        accum.value = (totalLoanWan - commVal).toFixed(2);
+                        updating = false;
+                    }
+
+                    // 当贷款总额变化时，同步更新组合贷款（保持公积金不变，调整按揭；若公积金超出，则调整公积金）
+                    function syncOnLoanTotalChange() {
+                        if (updating) return;
+                        updating = true;
+                        let totalLoanWan = parseFloat(loanTotalInp.value) || 0;
+                        if (totalLoanWan < 0) totalLoanWan = 0;
+                        let accumVal = parseFloat(accum.value) || 0;
+                        if (accumVal > totalLoanWan) {
+                            accumVal = totalLoanWan;
+                            accum.value = accumVal.toFixed(2);
+                            comm.value = 0;
+                        } else {
+                            comm.value = (totalLoanWan - accumVal).toFixed(2);
+                        }
+                        updating = false;
+                    }
+
+                    accum.addEventListener('input', syncFromAccum);
+                    comm.addEventListener('input', syncFromComm);
+
+                    loanTotalInp.removeEventListener('input', window.loanTotalChangeHandler);
+                    window.loanTotalChangeHandler = function() {
+                        if (currentLoanType === 'combined') {
+                            syncOnLoanTotalChange();
+                        }
+                    };
+                    loanTotalInp.addEventListener('input', window.loanTotalChangeHandler);
+                }, 0);
+            } else {
+                loanTotalInp.removeEventListener('input', window.loanTotalChangeHandler);
+            }
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            // 确保首付和贷款总额一致
+            let total = parseFloat(totalPriceInp.value) || 0;
+            let down = parseFloat(downPaymentInp.value) || 0;
+            if (down > total) down = total;
+            let loanYuan = total - down;
+            loanTotalInp.value = (loanYuan / 10000).toFixed(2);
+            renderLoanDetails();
+        });
+
+        // 辅助函数：等额本息月供计算 (金额:元, 年利率%, 年限)
+        function calculateMonthlyPayment(amountYuan, annualRatePercent, years) {
+            if (amountYuan <= 0 || years <= 0) return 0;
+            const months = years * 12;
+            const monthlyRate = annualRatePercent / 100 / 12;
+            if (monthlyRate === 0) return amountYuan / months;
+            const pow = Math.pow(1 + monthlyRate, months);
+            return amountYuan * monthlyRate * pow / (pow - 1);
+        }
+
+        // 向上取整到分 (第三位进位)
+        function ceilToFen(value) {
+            return Math.ceil(value * 100) / 100;
+        }
+
+        // 主计算函数
+        function calculate() {
+            // 读取基础值
+            let area = parseFloat(areaInp.value) || 0;
+            let totalYuan = Math.round(parseFloat(totalPriceInp.value) || 0);
+            let downYuan = Math.round(parseFloat(downPaymentInp.value) || 0);
+            if (downYuan < 0) downYuan = 0;
+            if (downYuan > totalYuan) downYuan = totalYuan;
+
+            const buyerType = buyerTypeSel.value;
+
+            // 契税计算
+            const exclusiveYuan = totalYuan / 1.09;
+            let deedRate = 0;
+            if (buyerType === 'first') {
+                deedRate = area <= 90 ? 0.01 : 0.015;
+            } else if (buyerType === 'second') {
+                deedRate = area <= 90 ? 0.01 : 0.02;
+            } else {
+                deedRate = 0.03;
+            }
+            let deedYuan = exclusiveYuan * deedRate;
+            deedYuan = ceilToFen(deedYuan);
+
+            // 维修基金
+            let maintenanceYuan = Math.floor(totalYuan * 0.01);
+
+            // 首付合计
+            const totalDownYuan = downYuan + deedYuan + maintenanceYuan;
+
+            // 更新费用显示
+            deedTaxSpan.innerText = deedYuan.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' 元';
+            maintenanceSpan.innerText = maintenanceYuan.toLocaleString() + ' 元';
+            downPayDisplaySpan.innerText = downYuan.toLocaleString() + ' 元';
+            totalDownSpan.innerText = totalDownYuan.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' 元';
+
+            // 贷款月供
+            let monthlyHtml = '';
+            if (currentLoanType === 'accumulation') {
+                const accumAmountWan = parseFloat(document.getElementById('accumAmount')?.value) || 0;
+                const accumYears = parseInt(document.getElementById('accumYears')?.value) || 1;
+                const accumRate = parseFloat(document.getElementById('accumRate')?.value) || DEFAULT_ACCUMULATION_RATE;
+                const accumAmountYuan = accumAmountWan * 10000;
+                const monthly = calculateMonthlyPayment(accumAmountYuan, accumRate, accumYears);
+                monthlyHtml = `
+                    <div class="loan-result-item">
+                        <p><span>公积金贷款</span> <span>${accumAmountWan.toFixed(2)} 万元</span></p>
+                        <p><span>年限</span> <span>${accumYears} 年</span></p>
+                        <p><span>月供</span> <span style="font-weight:700;">${monthly.toFixed(2)} 元</span></p>
+                    </div>
+                `;
+            } else if (currentLoanType === 'commercial') {
+                const commAmountWan = parseFloat(document.getElementById('commAmount')?.value) || 0;
+                const commYears = parseInt(document.getElementById('commYears')?.value) || 1;
+                const commRate = parseFloat(document.getElementById('commRate')?.value) || DEFAULT_COMMERCIAL_RATE;
+                const commAmountYuan = commAmountWan * 10000;
+                const monthly = calculateMonthlyPayment(commAmountYuan, commRate, commYears);
+                monthlyHtml = `
+                    <div class="loan-result-item">
+                        <p><span>按揭贷款</span> <span>${commAmountWan.toFixed(2)} 万元</span></p>
+                        <p><span>年限</span> <span>${commYears} 年</span></p>
+                        <p><span>月供</span> <span style="font-weight:700;">${monthly.toFixed(2)} 元</span></p>
+                    </div>
+                `;
+            } else { // 组合贷款
+                const accumAmountWan = parseFloat(document.getElementById('accumAmount')?.value) || 0;
+                const accumYears = parseInt(document.getElementById('accumYears')?.value) || 1;
+                const accumRate = parseFloat(document.getElementById('accumRate')?.value) || DEFAULT_ACCUMULATION_RATE;
+                const commAmountWan = parseFloat(document.getElementById('commAmount')?.value) || 0;
+                const commYears = parseInt(document.getElementById('commYears')?.value) || 1;
+                const commRate = parseFloat(document.getElementById('commRate')?.value) || DEFAULT_COMMERCIAL_RATE;
+
+                const accumAmountYuan = accumAmountWan * 10000;
+                const commAmountYuan = commAmountWan * 10000;
+                const monthlyAccum = calculateMonthlyPayment(accumAmountYuan, accumRate, accumYears);
+                const monthlyComm = calculateMonthlyPayment(commAmountYuan, commRate, commYears);
+                const totalMonthly = monthlyAccum + monthlyComm;
+
+                monthlyHtml = `
+                    <div class="loan-result-item">
+                        <p><span>公积金贷款</span> <span>${accumAmountWan.toFixed(2)} 万元</span></p>
+                        <p><span>年限 ${accumYears}年 · 月供</span> <span>${monthlyAccum.toFixed(2)} 元</span></p>
+                    </div>
+                    <div class="loan-result-item">
+                        <p><span>按揭贷款</span> <span>${commAmountWan.toFixed(2)} 万元</span></p>
+                        <p><span>年限 ${commYears}年 · 月供</span> <span>${monthlyComm.toFixed(2)} 元</span></p>
+                    </div>
+                    <div class="loan-result-item" style="background:#1e3b50; color:white;">
+                        <p><span>合计月供</span> <span style="font-weight:700;">${totalMonthly.toFixed(2)} 元</span></p>
+                    </div>
+                `;
+            }
+            monthlyResultDiv.innerHTML = monthlyHtml;
+        }
+
+        // 绑定计算按钮
+        calcBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            calculate();
+        });
+
+        // 页面加载后自动计算一次默认值
+        window.addEventListener('DOMContentLoaded', () => {
+            calculate();
+        });
+    })();
+</script>
+</body>
+</html>
